@@ -29,6 +29,9 @@ month = maxdate2[1]
 day = maxdate2[2]
 last12m = dt.date(year, month, day)
 
+start_date = dt.date(2017,7,20)
+end_date= dt.date(2017,7,30)
+
 def calc_temps(start_date, end_date):
     return session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
         filter(Measurement.date >= start_date).filter(Measurement.date <= end_date).all()
@@ -97,38 +100,18 @@ def tobs():
 
 @app.route('/api/v1.0/<start>')
 def start(start):
-    date_query = session.query(func.max(func.strftime("%Y-%m-%d", Measurement.date))).all()
-    max_dat = date_query[0][0]
-
-    #get the temperatures
-    temps = calc_temps(start, max_dat)
-
-    #create a list
-    return_list = []
-    date_dict = {'start_date': start, 'end_date': max_dat}
-    return_list.append(date_dict)
-    return_list.append({'Observation': 'TMIN', 'Temperature': temps[0][0]})
-    return_list.append({'Observation': 'TAVG', 'Temperature': temps[0][1]})
-    return_list.append({'Observation': 'TMAX', 'Temperature': temps[0][2]})
-
-    return jsonify(return_list)
-
-   
-    
+    session = Session(engine)
+    results=(session.query(func.min(Measurement.tobs),func.avg(Measurement.tobs),func.max(Measurement.tobs))
+    .filter(Measurement.date>=start_date).all())
+    trvl=list(np.ravel(results))   
+    return jsonify(trvl) 
 
 @app.route('/api/v1.0/<start>/<end>')
-def startEnd(start,end):
-    temps = calc_temps(start, end)
-
-    #create a list
-    return_list = []
-    date_dict = {'start_date': start, 'end_date': end}
-    return_list.append(date_dict)
-    return_list.append({'Observation': 'TMIN', 'Temperature': temps[0][0]})
-    return_list.append({'Observation': 'TAVG', 'Temperature': temps[0][1]})
-    return_list.append({'Observation': 'TMAX', 'Temperature': temps[0][2]})
-
-    return jsonify(return_list)
+def start_end(start, end):
+        session = Session(engine)
+        results1=(session.query(func.min(Measurement.tobs),func.avg(Measurement.tobs),func.max(Measurement.tobs))
+       .filter(Measurement.date>=start_date).filter(Measurement.date<=end_date).all())
+        return jsonify(results1)
 
    
     
