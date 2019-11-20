@@ -53,13 +53,14 @@ def precipitation():
     session = Session(engine) 
     results = session.query(Measurement.date, Measurement.prcp).all()
     session.close()
-    all_prcps = []
-    for date, prcp in results:
-        measurement_dict = {}
-        measurement_dict[date] = prcp
+    prcp={date:prcp for date, prcp in results}
+    # all_prcps = []
+    # for date, prcp in results:
+    #     measurement_dict={}
+    #     measurement_dict[date] = prcp
         
-        all_prcps.append(measurement_dict)
-    return jsonify(all_prcps)
+    #     all_prcps.append(measurement_dict)
+    return jsonify(prcp)
 
 
 @app.route("/api/v1.0/stations")
@@ -74,12 +75,14 @@ def stations():
 def tobs():
    session = Session(engine)
    tobs_results = session.query(Measurement.date, Measurement.tobs).filter(Measurement.date.between('2016-08-01', '2017-08-01')).all()
-   tobs_list=[]
-   for tobs in tobs_results:
-       tobs_dict = {}
-       tobs_dict[tobs[0]] = float(tobs[1])
-       tobs_list.append(tobs_dict)
-   return jsonify(tobs_list)
+#    tobs_list=[]
+#    for tobs in tobs_results:
+#        tobs_dict = {}
+#        tobs_dict[tobs[0]] = float(tobs[1])
+#        tobs_list.append(tobs_dict)
+#    result={date:tobs for date, tobs in tobs_results}
+   temps=list(np.ravel(tobs_results))
+   return jsonify(temps)
 
 
 @app.route('/api/v1.0/<start>')
